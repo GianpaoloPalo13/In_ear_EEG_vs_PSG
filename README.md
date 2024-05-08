@@ -23,15 +23,15 @@ Each .mat file for the in-ear-EEG/PSG hypnogram must show a field 'stages' conta
 
 The structure for the folders containing the scorers for in-ear-EEG/PSG signals must be as follow:
 - GDK_scorers
-  - Subject_01
-    - scorer_1:
+  |__ Subject_01
+    |__ scorer_1:
       - Subject_01.mat
-    - scorer_2:
+    |__ scorer_2:
       - Subject_01.mat
-    - scorer_3:
+    |__ scorer_3:
       - Subject_01.mat 
-  - Subject_02
-    - ... 
-  - ...
-  - Subject_10
-    - ...
+  |__ Subject_02
+    |__ ... 
+  |__ ...
+  |__ Subject_10
+    |__ ...
