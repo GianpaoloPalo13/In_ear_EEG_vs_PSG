@@ -1109,6 +1109,20 @@ def plot_most_selected(sel_feat_path, save_path):
              'De-trended fluctuation analysis', 'Katz fractal dimension', 'Higuchi fractal dimension',
              'Petrosian fractal dimension', 'Lempel–Ziv complexity']
 
+    feats_labels = ['Spectral energy', 'Relative \u03B4 power band', 'Relative \u03B8 power band',
+                    'Relative \u03B1 power band', 'Relative \u03C3 power band', 'Relative \u03B2 power band',
+                    'Relative \u03B3 power band', '\u03B4/\u03B8 power ratio', '\u03B4/\u03C3 power ratio',
+                    '\u03B4/\u03B2 power ratio', '\u03B8/\u03B1 power ratio', '\u03B4/\u03B1 power ratio',
+                    '\u03B1/\u03B2 power ratio', '\u03B4/(\u03B1 + \u03B2) power ratio',
+                    '\u03B8/(\u03B1 + \u03B2) power ratio', '\u03B4/(\u03B1 + \u03B2 + \u03B8) power ratio',
+                    'Spectral centroid', 'Spectral crest factor', 'Spectral flatness', 'Spectral skewness',
+                    'Spectral kurtosis', 'Spectral mean', 'Spectral variance', 'Spectral rolloff', 'Spectral spread',
+                    'Standard deviation', 'Inter-quartile range', 'Skewness', 'Kurtosis', 'Zero-crossings',
+                    'Max first derivative', 'Hjorth activity', 'Hjorth mobility', 'Hjorth complexity',
+                    'Spectral entropy', 'Renyi entropy', 'Approximate entropy', 'Sample entropy', 'SVD entropy',
+                    'Permutation entropy', 'DFA exponent', 'Katz FD', 'Higuchi FD', 'Petrosian FD',
+                    'Lempel–Ziv complexity']
+
     classes = os.listdir(sel_feat_path)
 
     # Matrix containing the most selected features
@@ -1123,7 +1137,7 @@ def plot_most_selected(sel_feat_path, save_path):
             matrix[pos_sel_feats, nc] += 1
 
     fig, axes = plt.subplot_mosaic([[0, '.', 1]], figsize=(10, 15), width_ratios=np.array([.7, .02, .05]))
-    df = pd.DataFrame(matrix, index=feats, columns=classes)
+    df = pd.DataFrame(matrix, index=feats_labels, columns=classes)
     heat_map = sb.heatmap(df, cmap='Reds', ax=axes[0], cbar=False, linecolor="black", linewidths=1,
                           xticklabels=True, square=False)
     heat_map.set_xticklabels(heat_map.get_xticklabels(), fontsize=16)
@@ -1465,7 +1479,7 @@ def head_plot(jsd_fsi_path, save_path):
                                         linestyles='--', linewidth=2, norm=Normalize(0, 1))
                 else:
                     lc = LineCollection(segments, array=np.array([jsd_fsi_bi[nc][n, ns], jsd_fsi_bi[nc][n, ns]]),
-                                        cmap=colormaps['plasma'], linewidth=2, norm=Normalize(vmin=abs_min, vmax=1))
+                                        cmap=colormaps['plasma'], linewidth=2, norm=Normalize(vmin=0, vmax=1))
                 axes[ns].add_collection(lc)
 
             # 2. EEG and EOG unipolar channels
@@ -1475,7 +1489,7 @@ def head_plot(jsd_fsi_path, save_path):
                                      s=250, edgecolor='k', vmin=0, vmax=1, zorder=2)
                 else:
                     axes[ns].scatter(eeg_eog_uni_x_couples[n], eeg_eog_uni_y_couples[n], c=jsd_fsi_uni[nc][n, ns],
-                                     cmap='plasma', marker='o', s=250, edgecolor='k', vmin=abs_min, vmax=1, zorder=2)
+                                     cmap='plasma', marker='o', s=250, edgecolor='k', vmin=0, vmax=1, zorder=2)
                 axes[ns].text(eeg_eog_uni_x_text[n], eeg_eog_uni_y_text[n], uni_ord[n], fontsize=13)
 
             if (nc == 2) & ((ns == 2) | (ns == 7)):
@@ -1484,7 +1498,7 @@ def head_plot(jsd_fsi_path, save_path):
                 axes[ns].set_title(sbj_names[ns].replace('_', ' ') + ' (' + str(avg_sub[nc][ns]) + ' '
                                    + u"\u00B1" + ' ' + str(std_sub[nc][ns]) + ')', fontsize=12)
 
-        fig.colorbar(ScalarMappable(norm=Normalize(vmin=abs_min, vmax=1), cmap='plasma'),
+        fig.colorbar(ScalarMappable(norm=Normalize(vmin=0, vmax=1), cmap='plasma'),
                      cax=axes[10], orientation='horizontal')
         axes[10].annotate(text='JSD-FSI Similarity-score for ' + c + ' stage', size=18, xy=(.5, 1.5),
                           xycoords=axes[10].transAxes, va="bottom", ha="center")
@@ -1866,4 +1880,9 @@ def jsd_fsi_statistic(jsd_fsi_path_ear, alpha=0.05):
             m2_flat = [(m2_ind * np.size(matrix, 1)) + 2, (m2_ind * np.size(matrix, 1)) + 5]
         jsd_fsi.append(np.delete(matrix.flatten(), m2_flat))
 
+        avg_jsd_fsi = np.round(np.mean(np.delete(matrix.flatten(), m2_flat)), 2)
+        std_jsd_fsi = np.round(np.std(np.delete(matrix.flatten(), m2_flat)), 2)
+        print("Average JSD-FSI for {}: {} \u00B1 {}".format(c, avg_jsd_fsi, std_jsd_fsi))
+
+    statistical_analysis(jsd_fsi)
     statistical_analysis(jsd_fsi, flag='one-sided')
