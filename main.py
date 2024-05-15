@@ -103,6 +103,6 @@ if __name__ == "__main__":
 
     # Plot for comparing JSD-FSI scores between in-ear-EEG-to-PSG and PSG-to-PSG
     hist_plot(jsd_fsi_path_ear, jsd_fsi_path_psg, args.save_path)
-    # Plot to separately analyse the JSD-FSI scores for (in-ear-EEG vs scalp-EEG), (in-ear-EEG vs EOG), (EOG vs EOG)
-    # (scalp-EEG vs scalp-EEG), (scalp-EEG vs EOG)
+    # Plot to separately analyse the JSD-FSI scores for (in-ear-EEG vs scalp-EEG), (in-ear-EEG vs EOG), (EOG vs EOG),
+    # and (scalp-EEG vs scalp-EEG)
     separate_hist_plot(jsd_fsi_path_ear, jsd_fsi_path_psg, args.save_path)
