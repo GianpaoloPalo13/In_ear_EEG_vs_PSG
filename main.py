@@ -77,7 +77,7 @@ if __name__ == "__main__":
     handle_nan(feat_path, inter_path, flag=True, save_path=args.save_path)
     # Notes: 1) By analysing the feature values from the channels of all subjects, we found different channels showing
     # NaN values on just one epoch in subjects 1 and 8, thus we remove the compromised epoch from all channels of such
-    # subjects; 2) the unipolar derivation M2 for subjects 3 and 6 show lots of NaN values, thus it gets removed and it
+    # subjects; 2) the unipolar derivation M2 for subjects 3 and 6 show lots of NaN values, thus it gets removed, and it
     # is not considered for following analyses
 
     # --------------------------------------------  Feature selection  ---------------------------------------------
@@ -92,17 +92,17 @@ if __name__ == "__main__":
     # -----------------------------------------------  JSD-FSI scores  -------------------------------------------------
 
     print('\nDefinition of JSD-FSI scores')
-    # In-ear-EEG vs PSG scorers
+    # PSG-to-In-ear-EEG JSD-FSI scorers
     jsd_fsi_path_ear = jsd_fsi_scores(feat_path, sel_feat_path_ear_psg, inter_path, args.save_path, flag='ear_vs_psg')
-    # Plot for the spatial distribution of the JSD-FSI scores for In-ear-EEG vs PSG
+    # Plot for the spatial distribution of the JSD-FSI scores for PSG-to-In-ear-EEG comparisons
     head_plot(jsd_fsi_path_ear, args.save_path)
     jsd_fsi_statistic(jsd_fsi_path_ear)
 
-    # PSG vs PSG scorers
+    # PSG-to-PSG JSD-FSI scorers
     jsd_fsi_path_psg = jsd_fsi_scores(feat_path, sel_feat_path_psg_psg, inter_path, args.save_path, flag='psg_vs_psg')
 
     # Plot for comparing JSD-FSI scores between in-ear-EEG-to-PSG and PSG-to-PSG
     hist_plot(jsd_fsi_path_ear, jsd_fsi_path_psg, args.save_path)
-    # Plot to separately analyse the JSD-FSI scores for (in-ear-EEG vs scalp-EEG), (in-ear-EEG vs EOG), (EOG vs EOG),
-    # and (scalp-EEG vs scalp-EEG)
+    # Plot to separately analyse the JSD-FSI scores for Scalp-EEG-to-In-ear-EEG vs Scalp-EEG-to-Scalp-EEG, and
+    # EOG-to-In-ear-EEG vs EOG-to-EOG
     separate_hist_plot(jsd_fsi_path_ear, jsd_fsi_path_psg, args.save_path)
