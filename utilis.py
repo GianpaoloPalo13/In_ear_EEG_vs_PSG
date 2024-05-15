@@ -1624,27 +1624,42 @@ def separate_hist_plot(jsd_fsi_path_ear, jsd_fsi_path_psg, save_path):
     ear_comps = np.load(glob.glob(jsd_fsi_path_ear + '/Comparisons*.npy')[0], allow_pickle=True).squeeze().tolist()
     ear_eog_pos = [ear_comps.index(eog_ch) for eog_ch in eog_chs]
     ear_eeg_pos = [ear_comps.index(eeg_ch) for eeg_ch in eeg_chs]
+    m2_ear = ear_comps.index('M2')
 
     eog_eog_chs = []
     eog_eeg_chs = []
     eeg_eeg_chs = []
+    m2_eog = []
+    m2_eeg = []
     psg_comps = np.load(glob.glob(jsd_fsi_path_psg + '/Comparisons*.npy')[0], allow_pickle=True).squeeze().tolist()
     for psg_id, psg_comp in enumerate(psg_comps):
         psg_1, psg_2 = psg_comp.split('_')
         if psg_1 in eog_chs:
             if psg_2 in eog_chs: eog_eog_chs.append(psg_id)
-            if psg_2 in eeg_chs: eog_eeg_chs.append(psg_id)
+            if psg_2 in eeg_chs:
+                eog_eeg_chs.append(psg_id)
+                if psg_2 == 'M2': m2_eog.append(eog_eeg_chs.index(psg_id))
         if psg_1 in eeg_chs:
-            if psg_2 in eog_chs: eog_eeg_chs.append(psg_id)
-            if psg_2 in eeg_chs: eeg_eeg_chs.append(psg_id)
+            if psg_2 in eog_chs:
+                eog_eeg_chs.append(psg_id)
+                if psg_1 == 'M2': m2_eog.append(eog_eeg_chs.index(psg_id))
+            if psg_2 in eeg_chs:
+                eeg_eeg_chs.append(psg_id)
+                if (psg_1 == 'M2') | (psg_2 == 'M2'): m2_eeg.append(eeg_eeg_chs.index(psg_id))
 
     # Parameters for the plot
     x_low_lim = [0.57, 0.38, 0.35]
-    y_sup_lim = [40, 46, 30]
+    y_sup_lim_eeg = [40, 46, 30]
+    y_sup_lim_eog = [11.5, 8.5, 10.5]
     x_ticks_c = [np.arange(0.6, 1.01, 0.1), np.arange(0.4, 1.01, 0.2), np.arange(0.4, 1.01, 0.2)]
-    y_ticks_c = [np.arange(0, 50, 10), np.arange(0, 50, 10), np.arange(0, 40, 10)]
-    ext = [5.9, 5.935, 5.94]
-    colors = plt.get_cmap('tab10')(np.linspace(0, 1, 10))
+    y_ticks_c_eeg = [np.arange(0, 50, 10), np.arange(0, 50, 10), np.arange(0, 40, 10)]
+    y_ticks_c_eog = [np.arange(0, 12, 2), np.arange(0, 10, 2), np.arange(0, 12, 2)]
+    ext_eeg = [5.9, 5.935, 5.94]
+    ext_eog = [5.9, 5.75, 5.94]
+    colors_line = plt.get_cmap('tab10')(np.linspace(0, 1, 10))
+    colors_hist = colors_line.copy()
+    for i in range(len(colors_hist)):
+        colors_hist[i][-1] = 0.5
     smooth_points = 100
 
     m2_ind_ear = np.load(os.path.join(jsd_fsi_path_ear, 'M2_index.npy')).squeeze().tolist()
@@ -1682,7 +1697,10 @@ def separate_hist_plot(jsd_fsi_path_ear, jsd_fsi_path_psg, save_path):
                 if np.max([np.max(scores_ear), np.max(scores_psg)]) > x_max:
                     x_max = np.max([np.max(scores_ear), np.max(scores_psg)])
 
-        fig, axes = plt.subplots(figsize=(14, 10), nrows=2, ncols=int(np.size(matrix_ear, 1) / 2))
+        # Figure In-ear-EEG-to-Scalp-EEG vs Scalp-EEG-to-Scalp-EEG
+        fig_1, axes_1 = plt.subplots(figsize=(14, 10), nrows=2, ncols=int(np.size(matrix_ear, 1) / 2))
+        # Figure In-ear-EEG-to-EOG vs EOG-to-EOG
+        fig_2, axes_2 = plt.subplots(figsize=(14, 10), nrows=2, ncols=int(np.size(matrix_ear, 1) / 2))
 
         for ns in range(np.size(matrix_ear, 1)):
 
@@ -1693,70 +1711,112 @@ def separate_hist_plot(jsd_fsi_path_ear, jsd_fsi_path_psg, save_path):
             else: row = 1; col = ns - 5
 
             if flag == 1:
-                hist1, bin_edges1 = np.histogram(eeg_eeg[:, ns], bins=20, range=(x_min, x_max))
+                if ns in [2, 5]:
+                    eeg_eeg_scores = np.delete(eeg_eeg[:, ns], m2_eeg)
+                    ear_eeg_scores = np.delete(ear_eeg[:, ns], m2_ear)
+                    eog_eog_scores = eog_eog[:, ns].copy()
+                    ear_eog_scores = ear_eog[:, ns].copy()
+                    eog_eeg_scores = np.delete(eog_eeg[:, ns], m2_eog)
+                else:
+                    eeg_eeg_scores = eeg_eeg[:, ns].copy()
+                    ear_eeg_scores = ear_eeg[:, ns].copy()
+                    eog_eog_scores = eog_eog[:, ns].copy()
+                    ear_eog_scores = ear_eog[:, ns].copy()
+                    eog_eeg_scores = eog_eeg[:, ns].copy()
+
+                hist1, bin_edges1 = np.histogram(eeg_eeg_scores, bins=20, range=(x_min, x_max))
                 bin_centers1 = (bin_edges1[:-1] + bin_edges1[1:]) / 2
                 smooth_bin_centers1 = np.linspace(bin_centers1.min(), bin_centers1.max(), smooth_points)
                 f1 = interp1d(bin_centers1, hist1, kind='cubic')
                 smooth_hist1 = f1(smooth_bin_centers1)
-                axes[row, col].plot(smooth_bin_centers1, smooth_hist1, label='Scalp-EEG vs Scalp-EEG',
-                                    color=colors[0], linewidth=1.5)
+                axes_1[row, col].plot(smooth_bin_centers1, smooth_hist1, label='Scalp-EEG vs Scalp-EEG',
+                                      color=colors_line[0], linewidth=1.5)
+                # axes_1[row, col].hist(eeg_eeg_scores, bins=20, edgecolor='black',
+                #                       facecolor=colors_hist[0], range=(x_min, x_max))
 
-                hist2, bin_edges2 = np.histogram(eog_eeg[:, ns], bins=20, range=(x_min, x_max))
+                hist2, bin_edges2 = np.histogram(ear_eeg_scores, bins=20, range=(x_min, x_max))
                 bin_centers2 = (bin_edges2[:-1] + bin_edges2[1:]) / 2
                 smooth_bin_centers2 = np.linspace(bin_centers2.min(), bin_centers2.max(), smooth_points)
                 f2 = interp1d(bin_centers2, hist2, kind='cubic')
                 smooth_hist2 = f2(smooth_bin_centers2)
-                axes[row, col].plot(smooth_bin_centers2, smooth_hist2, label='Scalp-EEG vs EOG',
-                                    color=colors[1], linewidth=1.5)
+                axes_1[row, col].plot(smooth_bin_centers2, smooth_hist2, label='In-ear-EEG vs Scalp-EEG',
+                                      color=colors_line[1], linewidth=1.5)
+                # axes_1[row, col].hist(ear_eeg_scores, bins=20, edgecolor='black',
+                #                       facecolor=colors_hist[1], range=(x_min, x_max))
 
-                hist3, bin_edges3 = np.histogram(eog_eog[:, ns], bins=20, range=(x_min, x_max))
+                axes_1[row, col].fill_between(smooth_bin_centers1, np.minimum(smooth_hist1, smooth_hist2),
+                                              color=colors_hist[4])
+
+                hist3, bin_edges3 = np.histogram(eog_eog_scores, bins=20, range=(x_min, x_max))
                 bin_centers3 = (bin_edges3[:-1] + bin_edges3[1:]) / 2
                 smooth_bin_centers3 = np.linspace(bin_centers3.min(), bin_centers3.max(), smooth_points)
                 f3 = interp1d(bin_centers3, hist3, kind='cubic')
                 smooth_hist3 = f3(smooth_bin_centers3)
-                axes[row, col].plot(smooth_bin_centers3, smooth_hist3, label='EOG vs EOG',
-                                    color=colors[2], linewidth=1.5)
+                axes_2[row, col].plot(smooth_bin_centers3, smooth_hist3, label='EOG vs EOG',
+                                      color=colors_line[2], linewidth=1.5)
+                # axes_2[row, col].hist(eog_eog_scores, bins=20, edgecolor='black',
+                #                       facecolor=colors_hist[2], range=(x_min, x_max))
 
-                hist4, bin_edges4 = np.histogram(ear_eeg[:, ns], bins=20, range=(x_min, x_max))
+                hist4, bin_edges4 = np.histogram(ear_eog_scores, bins=20, range=(x_min, x_max))
                 bin_centers4 = (bin_edges4[:-1] + bin_edges4[1:]) / 2
                 smooth_bin_centers4 = np.linspace(bin_centers4.min(), bin_centers4.max(), smooth_points)
                 f4 = interp1d(bin_centers4, hist4, kind='cubic')
                 smooth_hist4 = f4(smooth_bin_centers4)
-                axes[row, col].plot(smooth_bin_centers4, smooth_hist4, label='In-ear-EEG vs Scalp-EEG',
-                                    color=colors[3], linewidth=1.5)
+                axes_2[row, col].plot(smooth_bin_centers4, smooth_hist4, label='In-ear-EEG vs EOG',
+                                      color=colors_line[3], linewidth=1.5)
+                # axes_2[row, col].hist(ear_eog_scores, bins=20, edgecolor='black',
+                #                       facecolor=colors_hist[3], range=(x_min, x_max))
 
-                hist5, bin_edges5 = np.histogram(ear_eog[:, ns], bins=20, range=(x_min, x_max))
-                bin_centers5 = (bin_edges5[:-1] + bin_edges5[1:]) / 2
-                smooth_bin_centers5 = np.linspace(bin_centers5.min(), bin_centers5.max(), smooth_points)
-                f5 = interp1d(bin_centers5, hist5, kind='cubic')
-                smooth_hist5 = f5(smooth_bin_centers5)
-                axes[row, col].plot(smooth_bin_centers5, smooth_hist5, label='In-ear-EEG vs EOG',
-                                    color=colors[4], linewidth=1.5)
+                axes_2[row, col].fill_between(smooth_bin_centers3, np.minimum(smooth_hist3, smooth_hist4),
+                                              color=colors_hist[4])
 
-                axes[row, col].spines[['right', 'top']].set_visible(False)
-                axes[row, col].set_xlim([x_low_lim[nc], 1.01])
-                axes[row, col].set_ylim([0, y_sup_lim[nc]])
-                axes[row, col].set_xticks(x_ticks_c[nc])
-                axes[row, col].set_yticks(y_ticks_c[nc])
-                axes[row, col].set_title('Subject ' + str(ns + 1), fontsize=12)
+                axes_1[row, col].spines[['right', 'top']].set_visible(False)
+                axes_1[row, col].set_xlim([x_low_lim[nc], 1.01])
+                axes_1[row, col].set_ylim([0, y_sup_lim_eeg[nc]])
+                axes_1[row, col].set_xticks(x_ticks_c[nc])
+                axes_1[row, col].set_yticks(y_ticks_c_eeg[nc])
+                axes_1[row, col].set_title('Subject ' + str(ns + 1), fontsize=12)
+
+                axes_2[row, col].spines[['right', 'top']].set_visible(False)
+                axes_2[row, col].set_xlim([x_low_lim[nc], 1.01])
+                axes_2[row, col].set_ylim([0, y_sup_lim_eog[nc]])
+                axes_2[row, col].set_xticks(x_ticks_c[nc])
+                axes_2[row, col].set_yticks(y_ticks_c_eog[nc])
+                axes_2[row, col].set_title('Subject ' + str(ns + 1), fontsize=12)
 
                 if (row == 0) & (col == 0):
-                    axes[row, col].legend(bbox_to_anchor=(0., 1.1, ext[nc], .102), loc='lower left', ncols=5,
-                                          mode="expand", borderaxespad=0., fontsize=11)
+                    axes_1[row, col].legend(bbox_to_anchor=(0., 1.1, ext_eeg[nc], .102), loc='lower left', ncols=2,
+                                            mode="expand", borderaxespad=0., fontsize=11)
+                    axes_2[row, col].legend(bbox_to_anchor=(0., 1.1, ext_eog[nc], .102), loc='lower left', ncols=2,
+                                            mode="expand", borderaxespad=0., fontsize=11)
 
             else:
-                axes[row, col].plot(np.array([0, 1]), np.array([0, 1]), 'k')
-                axes[row, col].plot(np.array([0, 1]), np.array([1, 0]), 'k')
-                axes[row, col].set_xlim([-.5, 1.5])
-                axes[row, col].tick_params(left=False, right=False, labelleft=False, labelbottom=False, bottom=False)
-                axes[row, col].spines[['right', 'top', 'bottom', 'left']].set_visible(False)
-                axes[row, col].set_title('Subject ' + str(ns + 1), fontsize=12)
+                axes_1[row, col].plot(np.array([0, 1]), np.array([0, 1]), 'k')
+                axes_1[row, col].plot(np.array([0, 1]), np.array([1, 0]), 'k')
+                axes_1[row, col].set_xlim([-.5, 1.5])
+                axes_1[row, col].tick_params(left=False, right=False, labelleft=False, labelbottom=False, bottom=False)
+                axes_1[row, col].spines[['right', 'top', 'bottom', 'left']].set_visible(False)
+                axes_1[row, col].set_title('Subject ' + str(ns + 1), fontsize=12)
 
-        fig.suptitle(c + ' stage', fontsize=16, y=.99)
-        fig.supxlabel('JSD-FSI Similarity-scores', fontsize=14)
-        fig.supylabel('# Occurrences', fontsize=14, x=0.015)
-        fig.tight_layout(h_pad=3.5)
-        fig.savefig(os.path.join(save_path, 'Separate_Hist_' + c + '.jpg'), dpi=300)
+                axes_2[row, col].plot(np.array([0, 1]), np.array([0, 1]), 'k')
+                axes_2[row, col].plot(np.array([0, 1]), np.array([1, 0]), 'k')
+                axes_2[row, col].set_xlim([-.5, 1.5])
+                axes_2[row, col].tick_params(left=False, right=False, labelleft=False, labelbottom=False, bottom=False)
+                axes_2[row, col].spines[['right', 'top', 'bottom', 'left']].set_visible(False)
+                axes_2[row, col].set_title('Subject ' + str(ns + 1), fontsize=12)
+
+        fig_1.suptitle(c + ' stage', fontsize=16, y=.99)
+        fig_1.supxlabel('JSD-FSI Similarity-scores', fontsize=14)
+        fig_1.supylabel('# Occurrences', fontsize=14, x=0.015)
+        fig_1.tight_layout(h_pad=3.5)
+        fig_1.savefig(os.path.join(save_path, 'Separate_Scalp_Hist_' + c + '.jpg'), dpi=300)
+
+        fig_2.suptitle(c + ' stage', fontsize=16, y=.99)
+        fig_2.supxlabel('JSD-FSI Similarity-scores', fontsize=14)
+        fig_2.supylabel('# Occurrences', fontsize=14, x=0.015)
+        fig_2.tight_layout(h_pad=3.5)
+        fig_2.savefig(os.path.join(save_path, 'Separate_EOG_Hist_' + c + '.jpg'), dpi=300)
+
         # plt.show(block=False)
         # plt.pause(8)
         plt.close()
