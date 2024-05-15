@@ -3,9 +3,9 @@ Github repository related to the paper "Comparison analysis between standard pol
 In this study, the dataset includes 21 unipolar and bipolar PSG derivations along with a single-channel in-ear-EEG; and the sleep stages analysed are 'Awake', 'NREM', and 'REM'.
 
 In order to execute the code successfully, ensure that the following four folders are present:
-* 'GDK_data', which should contain the in-ear EEG signals in .mat format
+* 'GDK_data', which should contain the pre-processed in-ear EEG signals in .mat format
 * 'GDK_scorers', which should contain the associated hypnograms in .mat format for the in-ear EEG signals
-* 'PSG_data', which should contain the PSG signals in .mat format
+* 'PSG_data', which should contain the pre-processed PSG signals in .mat format
 * 'PSG_scorers', which should contain the associated hypnograms in .mat format for the PSG signals
 
 Each .mat file for the in-ear-EEG data must show two fields i.e., 1) 'GDK', containing the in-ear-EEG signal (1-D array); and 2) 'GDK_name', containing the name of the in-ear-EEG channel (list e.g. ['ch1']).
