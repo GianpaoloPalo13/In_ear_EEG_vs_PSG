@@ -177,8 +177,9 @@ def plot_inter(psg_fleiss, gdk_fleiss, save_path):
     axes.set_ylim(0, 1)
     axes.set_ylabel("Fleiss' Kappa", labelpad=10, fontsize=20)
     fig.suptitle("Inter-scorer variability", fontsize=23)
-    axes.legend([box0["boxes"][0], box1["boxes"][0]], ['In-ear-EEG scorers', 'PSG scorers'], loc='lower left',
-                fontsize=15, bbox_to_anchor=(0.01, 1.03, .98, .103), ncols=2, mode="expand", borderaxespad=-0.5)
+    axes.legend([box0["boxes"][0], box1["boxes"][0]], ['In-ear-EEG-to-In-ear-EEG scorers', 'PSG-to-PSG scorers'],
+                loc='lower left', fontsize=15, bbox_to_anchor=(0.01, 1.03, .98, .103), ncols=2,
+                mode="expand", borderaxespad=-0.5)
     fig.tight_layout(pad=1)
     plt.xticks([])
     plt.tick_params(axis="y", labelsize=14)
@@ -210,7 +211,7 @@ def plot_intra(psg_gdk_cohen, save_path):
     axes.set_ylim(0, 1)
     axes.set_ylabel("Cohen's Kappa", labelpad=10, fontsize=20)
     axes.set_title("Intra-scorer variability", fontsize=23)
-    names = ['PSG vs In-ear-EEG scorer 1', 'PSG vs In-ear-EEG scorer 2', 'PSG vs In-ear-EEG scorer 3']
+    names = ['PSG-to-In-ear-EEG scorer 1', 'PSG-to-In-ear-EEG scorer 2', 'PSG-to-In-ear-EEG scorer 3']
     axes.set_xticks(np.arange(0, len(names)))
     axes.set_xticklabels(names)
     # axes.grid(True)
@@ -933,7 +934,7 @@ def feature_selection(inter_path, feat_path, flag):
     # Input:
     # - inter_path: absolute path to the reference for the sleep stage analysis i.e., intersection between consensus
     # - feat_path: absolute path to the extracted features
-    # - flag: if 'ear_vs_psg', the in-ear-EEG-to-PSG comparison analysis is performed; otherwise, the PSG-to-PSG
+    # - flag: if 'ear_vs_psg', the PSG-to-In-ear-EEG comparison analysis is performed; otherwise, the PSG-to-PSG
     #         comparison analysis takes place
 
     # Ordered list of all the extracted features
@@ -968,7 +969,7 @@ def feature_selection(inter_path, feat_path, flag):
     # Listing all PSG files
     psg_chs_paths = [path for path in glob.glob(os.path.join(feat_path, subs[0]) + '/*.npy') if 'GDK' not in path]
 
-    # ----------------------------------  In-ear-EEG-to-PSG comparison analysis  -----------------------------------
+    # ----------------------------------  PSG-to-In-ear-EEG comparison analysis  -----------------------------------
     if flag == 'ear_vs_psg':
 
         # Saving path to GDK file
@@ -1197,7 +1198,7 @@ def jsd_fsi_scores(feat_path, sel_feat_path, inter_path, save_path, flag):
     if not os.path.exists(jsd_fsi_path_flag):
         os.makedirs(jsd_fsi_path_flag)
 
-    # In-ear-EEG-to-PSG comparisons
+    # PSG-to-In-ear-EEG comparisons
     if flag == 'ear_vs_psg':
 
         chs_idx = [os.path.basename(path).split('.')[0]
@@ -1510,9 +1511,9 @@ def head_plot(jsd_fsi_path, save_path):
 
 
 def hist_plot(jsd_fsi_path_ear, jsd_fsi_path_psg, save_path):
-    # Function to represent the histograms for in-ear-EEG-to-PSG and PSG-to-PSG comparisons
+    # Function to represent the histograms for PSG-to-In-ear-EEG and PSG-to-PSG comparisons
     # Input:
-    # - jsd_fsi_path_ear: absolute path to the folder containing JSD-FSI scores for the in-ear-EEG-to-PSG comparison
+    # - jsd_fsi_path_ear: absolute path to the folder containing JSD-FSI scores for the PSG-to-In-ear-EEG comparison
     # - jsd_fsi_path_psg: absolute path to the folder containing JSD-FSI scores for the PSG-to-PSG comparison
     # - save_path: absolute path where to save the image
 
@@ -1573,10 +1574,10 @@ def hist_plot(jsd_fsi_path_ear, jsd_fsi_path_psg, save_path):
                     scores_psg = jsd_fsi_psg[:, ns].copy()
                     scores_gdk = jsd_fsi_ear[:, ns].copy()
 
-                axes[row, col].hist(scores_psg, bins=20, edgecolor='black', label='PSG vs PSG',
+                axes[row, col].hist(scores_psg, bins=20, edgecolor='black', label='PSG-to-PSG',
                                     facecolor=np.array([241 / 255, 126 / 255, 125 / 255, 100 / 255]),
                                     range=(x_min, x_max))
-                axes[row, col].hist(scores_gdk, bins=20, edgecolor='black', label='in-ear-EEG vs PSG',
+                axes[row, col].hist(scores_gdk, bins=20, edgecolor='black', label='PSG-to-In-ear-EEG',
                                     facecolor=np.array([98 / 255, 149 / 255, 235 / 255, 100 / 255]),
                                     range=(x_min, x_max))
 
@@ -1610,9 +1611,9 @@ def hist_plot(jsd_fsi_path_ear, jsd_fsi_path_psg, save_path):
 
 
 def separate_hist_plot(jsd_fsi_path_ear, jsd_fsi_path_psg, save_path):
-    # Function to represent the histograms for in-ear-EEG-to-PSG and PSG-to-PSG comparisons
+    # Function to represent the histograms for PSG-to-In-ear-EEG and PSG-to-PSG comparisons
     # Input:
-    # - jsd_fsi_path_ear: absolute path to the folder containing JSD-FSI scores for the in-ear-EEG-to-PSG comparison
+    # - jsd_fsi_path_ear: absolute path to the folder containing JSD-FSI scores for the PSG-to-In-ear-EEG comparison
     # - jsd_fsi_path_psg: absolute path to the folder containing JSD-FSI scores for the PSG-to-PSG comparison
     # - save_path: absolute path where to save the image
 
@@ -1666,7 +1667,7 @@ def separate_hist_plot(jsd_fsi_path_ear, jsd_fsi_path_psg, save_path):
     m2_ind_psg = np.load(os.path.join(jsd_fsi_path_psg, 'M2_index.npy')).squeeze().tolist()
 
     for nc, c in enumerate(classes):
-        # Rearranging JSD-FSI scores for in-ear-EEG-to-PSG comparisons
+        # Rearranging JSD-FSI scores for PSG-to-In-ear-EEG comparisons
         matrix_ear = np.load(glob.glob(jsd_fsi_path_ear + '/JSD_FSI_' + c + '.npy')[0]).squeeze()
         ear_eog = matrix_ear[ear_eog_pos, :]
         ear_eeg = matrix_ear[ear_eeg_pos, :]
@@ -1697,9 +1698,9 @@ def separate_hist_plot(jsd_fsi_path_ear, jsd_fsi_path_psg, save_path):
                 if np.max([np.max(scores_ear), np.max(scores_psg)]) > x_max:
                     x_max = np.max([np.max(scores_ear), np.max(scores_psg)])
 
-        # Figure In-ear-EEG-to-Scalp-EEG vs Scalp-EEG-to-Scalp-EEG
+        # Figure Scalp-EEG-to-In-ear-EEG vs Scalp-EEG-to-Scalp-EEG
         fig_1, axes_1 = plt.subplots(figsize=(14, 10), nrows=2, ncols=int(np.size(matrix_ear, 1) / 2))
-        # Figure In-ear-EEG-to-EOG vs EOG-to-EOG
+        # Figure EOG-to-In-ear-EEG vs EOG-to-EOG
         fig_2, axes_2 = plt.subplots(figsize=(14, 10), nrows=2, ncols=int(np.size(matrix_ear, 1) / 2))
 
         for ns in range(np.size(matrix_ear, 1)):
@@ -1729,7 +1730,7 @@ def separate_hist_plot(jsd_fsi_path_ear, jsd_fsi_path_psg, save_path):
                 smooth_bin_centers1 = np.linspace(bin_centers1.min(), bin_centers1.max(), smooth_points)
                 f1 = interp1d(bin_centers1, hist1, kind='cubic')
                 smooth_hist1 = f1(smooth_bin_centers1)
-                axes_1[row, col].plot(smooth_bin_centers1, smooth_hist1, label='Scalp-EEG vs Scalp-EEG',
+                axes_1[row, col].plot(smooth_bin_centers1, smooth_hist1, label='Scalp-EEG-to-Scalp-EEG',
                                       color=colors_line[0], linewidth=1.5)
                 # axes_1[row, col].hist(eeg_eeg_scores, bins=20, edgecolor='black',
                 #                       facecolor=colors_hist[0], range=(x_min, x_max))
@@ -1739,7 +1740,7 @@ def separate_hist_plot(jsd_fsi_path_ear, jsd_fsi_path_psg, save_path):
                 smooth_bin_centers2 = np.linspace(bin_centers2.min(), bin_centers2.max(), smooth_points)
                 f2 = interp1d(bin_centers2, hist2, kind='cubic')
                 smooth_hist2 = f2(smooth_bin_centers2)
-                axes_1[row, col].plot(smooth_bin_centers2, smooth_hist2, label='In-ear-EEG vs Scalp-EEG',
+                axes_1[row, col].plot(smooth_bin_centers2, smooth_hist2, label='Scalp-EEG-to-In-ear-EEG',
                                       color=colors_line[1], linewidth=1.5)
                 # axes_1[row, col].hist(ear_eeg_scores, bins=20, edgecolor='black',
                 #                       facecolor=colors_hist[1], range=(x_min, x_max))
@@ -1752,7 +1753,7 @@ def separate_hist_plot(jsd_fsi_path_ear, jsd_fsi_path_psg, save_path):
                 smooth_bin_centers3 = np.linspace(bin_centers3.min(), bin_centers3.max(), smooth_points)
                 f3 = interp1d(bin_centers3, hist3, kind='cubic')
                 smooth_hist3 = f3(smooth_bin_centers3)
-                axes_2[row, col].plot(smooth_bin_centers3, smooth_hist3, label='EOG vs EOG',
+                axes_2[row, col].plot(smooth_bin_centers3, smooth_hist3, label='EOG-to-EOG',
                                       color=colors_line[2], linewidth=1.5)
                 # axes_2[row, col].hist(eog_eog_scores, bins=20, edgecolor='black',
                 #                       facecolor=colors_hist[2], range=(x_min, x_max))
@@ -1762,7 +1763,7 @@ def separate_hist_plot(jsd_fsi_path_ear, jsd_fsi_path_psg, save_path):
                 smooth_bin_centers4 = np.linspace(bin_centers4.min(), bin_centers4.max(), smooth_points)
                 f4 = interp1d(bin_centers4, hist4, kind='cubic')
                 smooth_hist4 = f4(smooth_bin_centers4)
-                axes_2[row, col].plot(smooth_bin_centers4, smooth_hist4, label='In-ear-EEG vs EOG',
+                axes_2[row, col].plot(smooth_bin_centers4, smooth_hist4, label='EOG-to-In-ear-EEG',
                                       color=colors_line[3], linewidth=1.5)
                 # axes_2[row, col].hist(ear_eog_scores, bins=20, edgecolor='black',
                 #                       facecolor=colors_hist[3], range=(x_min, x_max))
@@ -1915,9 +1916,9 @@ def statistical_analysis(m, flag='two-sided', alpha=0.05):
 
 
 def jsd_fsi_statistic(jsd_fsi_path_ear, alpha=0.05):
-    # Function to compare the JSD-FSI scores related to in-ear-EEG-to-PSG comparisons for the different sleep stages
+    # Function to compare the JSD-FSI scores related to PSG-to-In-ear-EEG comparisons for the different sleep stages
     # Input:
-    # - jsd_fsi_path_ear: absolute path to the folder containing JSD-FSI scores for the in-ear-EEG-to-PSG comparison
+    # - jsd_fsi_path_ear: absolute path to the folder containing JSD-FSI scores for the PSG-to-In-ear-EEG comparison
     # - alpha: significance level to use for statistical tests
 
     classes = [os.path.basename(file).split('.')[0].split('_')[-1]
