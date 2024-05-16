@@ -1657,10 +1657,10 @@ def separate_hist_plot(jsd_fsi_path_ear, jsd_fsi_path_psg, save_path):
     y_ticks_c_eog = [np.arange(0, 12, 2), np.arange(0, 10, 2), np.arange(0, 12, 2)]
     ext_eeg = [5.9, 5.935, 5.94]
     ext_eog = [5.9, 5.75, 5.94]
-    colors_line = plt.get_cmap('tab10')(np.linspace(0, 1, 10))
-    colors_hist = colors_line.copy()
-    for i in range(len(colors_hist)):
-        colors_hist[i][-1] = 0.5
+    color_line = plt.get_cmap('tab10')(np.linspace(0, 1, 10))
+    color_hist = color_line.copy()
+    for i in range(len(color_hist)):
+        color_hist[i][-1] = 0.5
     smooth_points = 100
 
     m2_ind_ear = np.load(os.path.join(jsd_fsi_path_ear, 'M2_index.npy')).squeeze().tolist()
@@ -1730,46 +1730,54 @@ def separate_hist_plot(jsd_fsi_path_ear, jsd_fsi_path_psg, save_path):
                 smooth_bin_centers1 = np.linspace(bin_centers1.min(), bin_centers1.max(), smooth_points)
                 f1 = interp1d(bin_centers1, hist1, kind='cubic')
                 smooth_hist1 = f1(smooth_bin_centers1)
+                smooth_hist1[(smooth_bin_centers1 < np.min(eeg_eeg_scores)) |
+                             (smooth_bin_centers1 > np.max(eeg_eeg_scores))] = 0
                 axes_1[row, col].plot(smooth_bin_centers1, smooth_hist1, label='Scalp-EEG-to-Scalp-EEG',
-                                      color=colors_line[0], linewidth=1.5)
+                                      color=color_line[0], linewidth=1.5)
                 # axes_1[row, col].hist(eeg_eeg_scores, bins=20, edgecolor='black',
-                #                       facecolor=colors_hist[0], range=(x_min, x_max))
+                #                       facecolor=color_hist[0], range=(x_min, x_max))
 
                 hist2, bin_edges2 = np.histogram(ear_eeg_scores, bins=20, range=(x_min, x_max))
                 bin_centers2 = (bin_edges2[:-1] + bin_edges2[1:]) / 2
                 smooth_bin_centers2 = np.linspace(bin_centers2.min(), bin_centers2.max(), smooth_points)
                 f2 = interp1d(bin_centers2, hist2, kind='cubic')
                 smooth_hist2 = f2(smooth_bin_centers2)
+                smooth_hist2[(smooth_bin_centers2 < np.min(ear_eeg_scores)) |
+                             (smooth_bin_centers2 > np.max(ear_eeg_scores))] = 0
                 axes_1[row, col].plot(smooth_bin_centers2, smooth_hist2, label='Scalp-EEG-to-In-ear-EEG',
-                                      color=colors_line[1], linewidth=1.5)
+                                      color=color_line[1], linewidth=1.5)
                 # axes_1[row, col].hist(ear_eeg_scores, bins=20, edgecolor='black',
-                #                       facecolor=colors_hist[1], range=(x_min, x_max))
+                #                       facecolor=color_hist[1], range=(x_min, x_max))
 
-                axes_1[row, col].fill_between(smooth_bin_centers1, np.minimum(smooth_hist1, smooth_hist2),
-                                              color=colors_hist[4])
+                axes_1[row, col].fill_between(smooth_bin_centers2, smooth_hist2,
+                                              where=(smooth_bin_centers2 > np.min(eeg_eeg_scores)), color=color_hist[4])
 
                 hist3, bin_edges3 = np.histogram(eog_eog_scores, bins=20, range=(x_min, x_max))
                 bin_centers3 = (bin_edges3[:-1] + bin_edges3[1:]) / 2
                 smooth_bin_centers3 = np.linspace(bin_centers3.min(), bin_centers3.max(), smooth_points)
                 f3 = interp1d(bin_centers3, hist3, kind='cubic')
                 smooth_hist3 = f3(smooth_bin_centers3)
+                smooth_hist3[(smooth_bin_centers3 < np.min(eog_eog_scores)) |
+                             (smooth_bin_centers3 > np.max(eog_eog_scores))] = 0
                 axes_2[row, col].plot(smooth_bin_centers3, smooth_hist3, label='EOG-to-EOG',
-                                      color=colors_line[2], linewidth=1.5)
+                                      color=color_line[2], linewidth=1.5)
                 # axes_2[row, col].hist(eog_eog_scores, bins=20, edgecolor='black',
-                #                       facecolor=colors_hist[2], range=(x_min, x_max))
+                #                       facecolor=color_hist[2], range=(x_min, x_max))
 
                 hist4, bin_edges4 = np.histogram(ear_eog_scores, bins=20, range=(x_min, x_max))
                 bin_centers4 = (bin_edges4[:-1] + bin_edges4[1:]) / 2
                 smooth_bin_centers4 = np.linspace(bin_centers4.min(), bin_centers4.max(), smooth_points)
                 f4 = interp1d(bin_centers4, hist4, kind='cubic')
                 smooth_hist4 = f4(smooth_bin_centers4)
+                smooth_hist4[(smooth_bin_centers4 < np.min(ear_eog_scores)) |
+                             (smooth_bin_centers4 > np.max(ear_eog_scores))] = 0
                 axes_2[row, col].plot(smooth_bin_centers4, smooth_hist4, label='EOG-to-In-ear-EEG',
-                                      color=colors_line[3], linewidth=1.5)
+                                      color=color_line[3], linewidth=1.5)
                 # axes_2[row, col].hist(ear_eog_scores, bins=20, edgecolor='black',
-                #                       facecolor=colors_hist[3], range=(x_min, x_max))
+                #                       facecolor=color_hist[3], range=(x_min, x_max))
 
-                axes_2[row, col].fill_between(smooth_bin_centers3, np.minimum(smooth_hist3, smooth_hist4),
-                                              color=colors_hist[4])
+                axes_2[row, col].fill_between(smooth_bin_centers4, smooth_hist4,
+                                              where=(smooth_bin_centers4 > np.min(eog_eog_scores)), color=color_hist[4])
 
                 axes_1[row, col].spines[['right', 'top']].set_visible(False)
                 axes_1[row, col].set_xlim([x_low_lim[nc], 1.01])
