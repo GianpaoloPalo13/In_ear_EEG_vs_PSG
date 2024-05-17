@@ -64,7 +64,7 @@ if __name__ == "__main__":
     # Consensus definition and reference evaluation i.e., intersection between PSG and in-ear-EEG consensus
     PSG_consensus_path = consensus_definition(new_path_psg, args.save_path, True)
     GDK_consensus_path = consensus_definition(new_path_gdk, args.save_path, True)
-    inter_path = intersection(PSG_consensus_path, GDK_consensus_path, args.save_path)
+    inter_path = intersection(PSG_consensus_path, GDK_consensus_path, args.save_path, consensus_agreement=True)
 
     # --------------------------------------------  Feature extraction  --------------------------------------------
     
