@@ -332,12 +332,14 @@ def consensus_definition(scorer_path, save_path, to_plot=False, plot_path=None):
     return save_path_cons
 
 
-def intersection(psg_consensus_path, gdk_consensus_path, save_path):
+def intersection(psg_consensus_path, gdk_consensus_path, save_path, consensus_agreement=True):
     # Function to define the intersection between PSG and in-ear-EEG consensus
     # Input:
     # - psg_consensus_path: absolute path pointing to the folder containing the PSG consensus for all subjects
     # - gdk_consensus_path: absolute path pointing to the folder containing the in-ear-EEG consensus for all subjects
     # - save_path: absolute path of the folder where to store the results
+    # - consensus_agreement: if True, agreement metrics are evaluated between PSG and in-ear-EEG consensus i.e.,
+    #                        precision, recall, and F1-score
     # Output:
     # - save_path_inter: absolute path to the folder containing the intersection of the two consensus
 
@@ -349,14 +351,32 @@ def intersection(psg_consensus_path, gdk_consensus_path, save_path):
     if not os.path.exists(save_path_inter): os.makedirs(save_path_inter)
     # The name is equal to the corresponding subject
 
+    classes = np.unique(np.load(psg_files[0]).squeeze())
+    metrics = {'precision': {cls: [] for cls in classes},
+               'recall': {cls: [] for cls in classes},
+               'f1-score': {cls: [] for cls in classes}}
+
     # Cycle on subjects
     for n_sbj in range(len(psg_files)):
         psg = np.load(psg_files[n_sbj]).squeeze()
         gdk = np.load(gdk_files[n_sbj]).squeeze()
 
+        if consensus_agreement:
+            report = skm.classification_report(psg, gdk, output_dict=True)
+            for nc in range(len(metrics.keys())):
+                for m in list(metrics.keys()):
+                    metrics[m][nc].append(report[str(nc)][m])
+
         # epochs where the PSG and in-ear-EEG consensus do not agree are scored as 8
         inter_cons = np.where(psg == gdk, psg, 8 * np.ones_like(gdk))
         np.save(os.path.join(save_path_inter, os.path.split(psg_files[n_sbj])[1]), inter_cons)
+
+    if consensus_agreement:
+        print('\nEvaluating the agreement between consensus')
+        for nc in range(len(metrics.keys())):
+            for m in list(metrics.keys()):
+                print(f'Average {m.capitalize()} for class {nc}: {np.mean(metrics[m][nc]):.4f} '
+                      f'\u00B1 {np.std(metrics[m][nc]):.4f}')
 
     return save_path_inter
 
