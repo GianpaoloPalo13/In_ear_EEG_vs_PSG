@@ -1,0 +1,7 @@
+/GDK_data/
+/GDK_scorers/
+/PSG_data/
+/PSG_scorers/
+/Results/
+*__pycache__
+*.idea
