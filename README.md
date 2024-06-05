@@ -71,5 +71,5 @@ The structure for the folders containing the scorers for in-ear-EEG/PSG signals 
 ## Usage
 The main script to execute is *main.py*: all the functions that are used are defined in *utils.py*. To run the script, please use the following syntax:
 ```blue
-python main.py --PSG_data_path .\In_ear_EEG_vs_PSG\PSG_data --GDK_data_path .\In_ear_EEG_vs_PSG\GDK_data --PSG_scorer_path .\In_ear_EEG_vs_PSG\PSG_scorers --GDK_scorer_path .\In_ear_EEG_vs_PSG\GDK_scorers --save_path .\In_ear_EEG_vs_PSG\Results
+python main.py --PSG_data_path r'.\In_ear_EEG_vs_PSG\PSG_data' --GDK_data_path r'.\In_ear_EEG_vs_PSG\GDK_data' --PSG_scorer_path r'.\In_ear_EEG_vs_PSG\PSG_scorers' --GDK_scorer_path r'.\In_ear_EEG_vs_PSG\GDK_scorers' --save_path r'.\In_ear_EEG_vs_PSG\Results'
 ```
