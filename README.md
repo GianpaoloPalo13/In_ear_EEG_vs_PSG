@@ -20,27 +20,31 @@ In order to execute the code successfully, ensure that the following four folder
 * *'PSG_data'*, which should contain the pre-processed PSG signals in .mat format
 * *'PSG_scorers'*, which should contain the associated hypnograms in .mat format for the PSG signals
 
-The structure for the folders containing in-ear-EEG/PSG signals i.e., *'GDK_data'* and *'PSG_data'* must be as follow:
-- GDK_data
-  - Subject_01_GDK.mat
-  - Subject_02_GDK.mat
-  - ...
-  - Subject_10_GDK.mat
+The structure for the folders containing in-ear-EEG/PSG signals i.e., *'GDK_data'* and *'PSG_data'* must be as follow:  
+├── GDK_data  
+│ ├── Subject_01_GDK.mat  
+│ ├── Subject_02_GDK.mat  
+│ ├──   . . .   
+│ └──  Subject_10_GDK.mat
 
-The structure for the folders containing the scorers for in-ear-EEG/PSG signals i.e., *'GDK_scorers'* and *'PSG_scorers'* must be as follow:
-- GDK_scorers
-  - Subject_01
-    - scorer_1:
-      - Subject_01.mat
-    - scorer_2:
-      - Subject_01.mat
-    - scorer_3:
-      - Subject_01.mat 
-  - Subject_02
-    - ... 
-  - ...
-  - Subject_10
-    - ...
+The structure for the folders containing the scorers for in-ear-EEG/PSG signals i.e., *'GDK_scorers'* and *'PSG_scorers'* must be as follow:  
+├── GDK_scorers  
+│ │  
+│ ├── Subject_01  
+│ │ ├── scorer_1:  
+│ │ │ └── Subject_01.mat  
+│ │ ├── scorer_2:  
+│ │ │ └── Subject_01.mat  
+│ │ ├── scorer_3:  
+│ │ │ └── Subject_01.mat  
+│ │  
+│ ├── Subject_02  
+│ │ ├──  . . .   
+│ │  
+│ ├──  . . .   
+│ │  
+│ ├── Subject_10  
+│ │ ├──  . . . 
 
 
 ### Data structure
@@ -61,3 +65,11 @@ The structure for the folders containing the scorers for in-ear-EEG/PSG signals 
   8. 'EOG_uni_names', containing the names of the N4-unipolar EOG derivations (list e.g. ['E1', 'E2']). M is the number of samples.  
 
   **Note**: an additional <ins>*mastoid-to-mastoid derivation*</ins> ('M2M1') gets automatically defined in the script.
+
+
+
+## Usage
+The main script to execute is *main.py*: all the functions that are used are defined in *utils.py*. To run the script, please use the following syntax:
+```blue
+python main.py --PSG_data_path .\In_ear_EEG_vs_PSG\PSG_data --GDK_data_path .\In_ear_EEG_vs_PSG\GDK_data --PSG_scorer_path .\In_ear_EEG_vs_PSG\PSG_scorers --GDK_scorer_path .\In_ear_EEG_vs_PSG\GDK_scorers --save_path .\In_ear_EEG_vs_PSG\Results
+```
