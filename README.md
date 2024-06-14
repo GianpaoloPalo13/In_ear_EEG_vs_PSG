@@ -68,7 +68,7 @@ The structure for the folders containing the scorers for in-ear-EEG/PSG signals 
   7. 'EOG_uni', containing the signals for N4-unipolar EOG derivations (matrix N4 x M)
   8. 'EOG_uni_names', containing the names of the N4-unipolar EOG derivations (list e.g. ['E1', 'E2']). M is the number of samples.  
 
-  > [!NOTE]
+  > [!IMPORTANT]
   > An additional <ins>*mastoid-to-mastoid derivation*</ins> ('M2M1') gets automatically defined in the script.
 
 
